@@ -1,4 +1,5 @@
 import numpy as np
+from random import randint
 
 
 # This is where you can build a decision tree for determining throttle, brake and steer 
@@ -26,6 +27,16 @@ def decision_step(Rover):
                 Rover.brake = 0
                 # Set steering to average angle clipped to the range +/- 15
                 Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
+
+                if (Rover.vel < 0.2):
+                    Rover.stop_count +=1
+                    if (Rover.stop_count > 200):
+                        Rover.mode = 'stop'
+                        print("Sent STOP")
+                else:
+                    Rover.stop_count = 0
+                    
+
             # If there's a lack of navigable terrain pixels then go to 'stop' mode
             elif len(Rover.nav_angles) < Rover.stop_forward:
                     # Set mode to "stop" and hit the brakes!
@@ -50,7 +61,8 @@ def decision_step(Rover):
                     # Release the brake to allow turning
                     Rover.brake = 0
                     # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
-                    Rover.steer = -15 # Could be more clever here about which way to turn
+                    steer_rnd = randint(0, 5)
+                    Rover.steer = -15 + steer_rnd # Could be more clever here about which way to turn
                 # If we're stopped but see sufficient navigable terrain in front then go!
                 if len(Rover.nav_angles) >= Rover.go_forward:
                     # Set throttle back to stored value
